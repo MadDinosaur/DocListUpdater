@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 #HTML FILE PATH
-html_file_path = "C:/Users/bdian/Downloads/index.html"
+html_file_path = "index.html"
 #FILE SEARCH INFO
 file_list_type = 'Category'
 file_list_filename = 'Filename'
@@ -57,11 +57,11 @@ def add_line():
 
 
 def write_line(new_entry):
-    str_html = file.read()
-    write_index = str_html.rfind('</tr>') + len('</tr>')
+    write_index = -len('</tbody>    </table></body></html>')
     print(write_index)
-    file.seek(write_index)
-    file.write(str(new_entry))
+    print(file.read())
+    #file.seek(write_index)
+    #file.write(new_entry.prettify())
     file.close()
 
 ##METHOD CALL
