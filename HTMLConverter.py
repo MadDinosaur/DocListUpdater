@@ -2,11 +2,6 @@ from bs4 import BeautifulSoup
 
 # HTML FILE PATH
 html_file_path = "index.html"
-# FILE SEARCH INFO
-file_list_type = 'Category'
-file_list_filename = 'Filename'
-file_list_location = 'Path'
-file_list_path = 'file://path'
 # LIBRARY USAGE
 file = open(html_file_path, 'r')
 html = BeautifulSoup(file, 'html.parser')
@@ -22,7 +17,7 @@ download_button_img = html.new_tag('svg', None, None, {'viewBox': '0 0 448 512',
 download_button_img.append(html.new_tag('path', None, None, {'d': download_button_src}))
 
 
-def add_line():
+def add_line(file_list_type, file_list_filename, file_list_location, file_list_path):
     new_entry = html.new_tag('tr')
     # TYPE COLUMN
     col_one = html.new_tag('td', None, None, {'height': 19})
@@ -59,21 +54,15 @@ def add_line():
     col_four.append(tooltip_div)
     new_entry.contents.append(col_four)
     ##
-    print("New entry: " + str(new_entry))
-    write_line(new_entry)
-
-
-def write_line(new_entry):
-    file = open(html_file_path, 'w')
 
     last_tag = html.find_all('td')[-1]
     last_tag.insert_after(new_entry)
+
+
+def writeToHTML():
+    file = open(html_file_path, 'w')
 
     html.encode('utf-8')
     file.write(html.prettify(formatter= 'html'))
 
     file.close()
-
-
-##METHOD CALL
-add_line()

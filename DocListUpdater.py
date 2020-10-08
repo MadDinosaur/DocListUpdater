@@ -9,8 +9,6 @@ TIME_INTERVAL = 86400  # REPRESENTS HOW OLD THE FILE MODIFICATION DATE SHOULD BE
 
 FILE = "listadocs.xlsx"
 
-HTML_FILE = "index.html"
-
 WORKBOOK = openpyxl.load_workbook(FILE)
 
 SHEET = WORKBOOK[WORKBOOK.sheetnames[0]]
@@ -64,7 +62,8 @@ def find_files():
 
             if include_files:
                 for filename in files:
-                    if filename.endswith(".ini") or filename.endswith(".db") or filename.endswith(".DS_Store"):
+                    file_extension = filename.split('.')[1]
+                    if file_extension in FILE_EXTENSION_BLACK_LIST:
                         continue
                     else:
                         for type in TYPES_OF_DOCUMENTS:
@@ -110,40 +109,44 @@ def find_files_by_date():
     return removeDuplicates(file_list)
 
 
-def write_files():
-    file_list_index = 0
-    file_list_size = len(FILE_LIST)
-    row_number = 2
-    col_number_type = HEADERS.index("Tipo") + 1
-    col_number_location = HEADERS.index("Localização") + 1
-    for row in SHEET.iter_rows(min_row=2, max_row=file_list_size + row_number, max_col=NUM_MAIN_HEADERS,
-                               values_only=True):
-        if file_list_index >= file_list_size:
-            break
-        else:
-            row_is_empty = row.count(None) == len(row)
-            if row_is_empty:
-                SHEET.cell(row=row_number, column=col_number_type).value = FILE_LIST[file_list_index][0]
-                SHEET.cell(row=row_number, column=col_number_location).hyperlink = FILE_LIST[file_list_index][2]
-                SHEET.cell(row=row_number, column=col_number_location).value = FILE_LIST[file_list_index][1]
-                file_list_index += 1
-            row_number += 1
-
-    WORKBOOK.save(FILE)
+# def write_files():
+#     file_list_index = 0
+#     file_list_size = len(FILE_LIST)
+#     row_number = 2
+#     col_number_type = HEADERS.index("Tipo") + 1
+#     col_number_location = HEADERS.index("Localização") + 1
+#     for row in SHEET.iter_rows(min_row=2, max_row=file_list_size + row_number, max_col=NUM_MAIN_HEADERS,
+#                                values_only=True):
+#         if file_list_index >= file_list_size:
+#             break
+#         else:
+#             row_is_empty = row.count(None) == len(row)
+#             if row_is_empty:
+#                 SHEET.cell(row=row_number, column=col_number_type).value = FILE_LIST[file_list_index][0]
+#                 SHEET.cell(row=row_number, column=col_number_location).hyperlink = FILE_LIST[file_list_index][2]
+#                 SHEET.cell(row=row_number, column=col_number_location).value = FILE_LIST[file_list_index][1]
+#                 file_list_index += 1
+#             row_number += 1
+#
+#     WORKBOOK.save(FILE)
 
 
 def removeDuplicates(newfiles_list):
     files_list = []
     return list(set([i for i in files_list]))
 
-def convertToHtml():
-    with open(HTML_FILE) as file:
-        soup = BeautifulSoup(file, 'html.parser')
-        table_lines_list = soup.find_all('tr')
-        last_entry = table_lines_list[-1]
-        print(last_entry)
 
+def convertToHtml():
+    import HTMLConverter
+    for line in FILE_LIST:
+        type = line[0]
+        filename = line[1]
+        location = line[2]
+        path = "file:" + location.replace("\\", "/")
+
+        HTMLConverter.add_line(type, filename, location, path)
+    HTMLConverter.writeToHTML()
 
 ## Method calls ##
 FILE_LIST = find_files_by_date()
-write_files()
+convertToHtml()
